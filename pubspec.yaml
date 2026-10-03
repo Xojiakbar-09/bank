@@ -1,0 +1,26 @@
+name: bank_card
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  u_credit_card: ^1.6.0
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.5+1
+  http: ^1.6.0
+  get_storage: ^2.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

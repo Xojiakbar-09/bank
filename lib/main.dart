@@ -1,0 +1,34 @@
+import 'package:bank_card/provider/homeprovider.dart';
+import 'package:bank_card/provider/pincodeprovider.dart';
+import 'package:bank_card/screens/pinkod.dart';
+import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+
+import 'package:provider/provider.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PinProvider()),
+        ChangeNotifierProvider(create: (_) => Homeprovider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(colorScheme: ColorScheme.dark(primary: Colors.black)),
+      home: PinCodeScreen(),
+    );
+  }
+}
