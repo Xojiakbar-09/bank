@@ -8,7 +8,7 @@ class HomeRepository {
   static Future<List<CardModel>> getcard() async {
     try {
       final url = Uri.parse(
-        "${Platform.isAndroid ? "http://192.168.1.152:1337/" : "http://localhost:1337/"}api/cards",
+        "${Platform.isAndroid ? "http://192.168.1.163:1337/" : "http://localhost:1337/"}api/cards",
       );
       final respons = await http.get(url);
 
