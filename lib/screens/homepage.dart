@@ -3,6 +3,7 @@ import 'package:bank_card/provider/homeprovider.dart';
 import 'package:bank_card/screens/tarix.dart';
 import 'package:bank_card/widget/circlor.dart';
 import 'package:bank_card/widget/listview.dart';
+import 'package:bank_card/widget/logout.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -35,7 +36,7 @@ class Homepage extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(height: 10),
-                    Homewiev(),
+                    HomeView(),
                     SizedBox(height: 30),
                     SizedBox(
                       height: 80,
@@ -75,8 +76,9 @@ class Homepage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => Tarix()),
-                            
                           );
+                        } else if (index == home.icons.length - 1) {
+                          showLogoutBottomSheet(context);
                         }
                       },
                     );

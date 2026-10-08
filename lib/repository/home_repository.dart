@@ -1,28 +1,36 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bank_card/core/service/aposervice.dart';
 import 'package:bank_card/repository/card.dart';
-import 'package:http/http.dart' as http;
 
 class HomeRepository {
-  static Future<List<CardModel>> getcard() async {
+  static Future<List<CardModel>> getCards() async {
     try {
-      final url = Uri.parse(
-        "${Platform.isAndroid ? "http://192.168.1.163:1337/" : "http://localhost:1337/"}api/cards",
-      );
-      final respons = await http.get(url);
+      // 1. URL'ni ApiService.baseUrl orqali hosil qilamiz
+      final url = Uri.parse("${ApiService.baseUrl}/cards");
 
-      if (respons.statusCode >= 200 && respons.statusCode < 300) {
-        final data = json.decode(respons.body);
-        return (data['data'] as List)
-            .map((e) => CardModel.fromJson(e))
-            .toList();
+      // 2. ApiService.http orqali interceptor ulangan so'rov yuboramiz
+      final response = await ApiService.http.get(url);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final data = json.decode(response.body);
+
+        // Strapi v4 javobi 'data' massivida keladi
+        if (data['data'] != null && data['data'] is List) {
+          return (data['data'] as List)
+              .map((e) => CardModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+        return [];
       } else {
-        throw HttpException(json.decode(respons.body)['error']['message']);
+        // 3. Server xabarini xavfsiz o'qiymiz
+        final errorData = json.decode(response.body);
+        final errorMessage = errorData['error']?['message'] ?? "Noma'lum xatolik yuz berdi";
+        throw HttpException(errorMessage);
       }
     } catch (e) {
       rethrow;
-      
     }
   }
 }

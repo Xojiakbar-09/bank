@@ -2,6 +2,7 @@ import 'package:bank_card/core/utils/checkcontroller.dart';
 import 'package:bank_card/presentation/cubit/register_cubit.dart';
 import 'package:bank_card/presentation/cubit/register_stet.dart';
 import 'package:bank_card/screens/pinkod.dart';
+import 'package:bank_card/screens/sign_in.dart';
 import 'package:bank_card/widget/snekbar.dart';
 import 'package:bank_card/widget/vustomtext.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,7 +47,7 @@ class _RegisterState extends State<Register> {
           if (state.status == RegisterStatus.authentificate) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => PinCodeScreen()),
+              MaterialPageRoute(builder: (context) => LoginScreen()),
             );
           } else if (state.status == RegisterStatus.failure) {
             showTopSnackBar(
