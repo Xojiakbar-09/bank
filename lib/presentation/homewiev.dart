@@ -7,23 +7,28 @@ class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<HomeView> createState() => HomeViewState(); 
 }
 
-class _HomeViewState extends State<HomeView> {
-  // Future'ni faqat bir marta e'lon qilamiz
-  late final Future<List<CardModel>> _cardsFuture;
+class HomeViewState extends State<HomeView> {
+  late Future<List<CardModel>> _cardsFuture;
 
   @override
   void initState() {
     super.initState();
-    _cardsFuture = HomeRepository.getCards();
+    refresh(); // Dastlabki yuklash
+  }
+
+  void refresh() {
+    setState(() {
+      _cardsFuture = HomeRepository.getCards();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<CardModel>>(
-      future: _cardsFuture, // initState'da yaratilgan future beriladi
+      future: _cardsFuture,
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -39,7 +44,11 @@ class _HomeViewState extends State<HomeView> {
         }
 
         if (!snap.hasData || snap.data!.isEmpty) {
-          return const Center(child: Text("Kartalar topilmadi"));
+          return const SizedBox(
+            height: 150,
+            width: double.infinity,
+            child: Center(child: Text("Kartalar mavjud emas")),
+          );
         }
 
         final cards = snap.data!;
@@ -51,11 +60,14 @@ class _HomeViewState extends State<HomeView> {
             itemBuilder: (context, index) {
               final card = cards[index];
 
-              return CreditCardUi(
-                creditCardType: CreditCardType.visa,
-                cardHolderFullName: card.holdername,
-                cardNumber: card.cardnumber.toString(),
-                validThru: card.expireData.toString(),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8 ),
+                child: CreditCardUi(
+                  creditCardType: CreditCardType.visa,
+                  cardHolderFullName: card.holdername,
+                  cardNumber: card.cardnumber.toString(),
+                  validThru: card.expireData.toString(),
+                ),
               );
             },
           ),

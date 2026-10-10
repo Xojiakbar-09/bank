@@ -6,10 +6,12 @@ class Homeprovider extends ChangeNotifier {
     Icon(Icons.arrow_forward, color: Colors.white),
     Icon(Icons.wallet, color: Colors.white),
   ];
-  List<String> soz = ["To'ldirish", "O'tkazish", "To'lash"];
+  List<String> soz = ["Qo'shish", "O'tkazish", "To'lash"];
 
  List<IconData> icons = [
-  Icons.history,            
+
+  Icons.history,
+  Icons.card_membership_sharp,            
   Icons.description_outlined, 
   Icons.help_outline,     
   Icons.sell_outlined,     
@@ -18,6 +20,7 @@ class Homeprovider extends ChangeNotifier {
 ];
   List<String> sozs = [
     "Tranziyaksiya tarixi",
+    "Kartalar",
     "Malumotnoma",
     "Savollar",
     "Tariflar",

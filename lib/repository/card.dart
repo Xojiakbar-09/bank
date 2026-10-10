@@ -3,7 +3,7 @@ class CardModel {
   final int cvv;
   final DateTime expireData;
   final int cardnumber;
-  final int documentId;
+  final String documentId; 
 
   CardModel({
     required this.documentId,
@@ -13,12 +13,13 @@ class CardModel {
     required this.cardnumber,
   });
 
+
   static CardModel fromJson(Map<String, dynamic> json) => CardModel(
         holdername: json['name']?.toString() ?? 'Unknown',
         cvv: _parseInt(json["cvv"]),
         expireData: DateTime.tryParse(json["mudatti"]?.toString() ?? '') ?? DateTime.now(),
         cardnumber: _parseInt(json["number"]),
-        documentId: _parseInt(json["documentId"]),
+        documentId: json["documentId"]?.toString() ?? '', 
       );
 
   static int _parseInt(dynamic value) {

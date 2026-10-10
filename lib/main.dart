@@ -1,6 +1,7 @@
 import 'package:bank_card/presentation/cubit/register_cubit.dart';
 import 'package:bank_card/provider/homeprovider.dart';
 import 'package:bank_card/provider/pincodeprovider.dart';
+import 'package:bank_card/screens/homepage.dart';
 import 'package:bank_card/screens/pinkod.dart'; 
 import 'package:bank_card/screens/sign_in.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(colorScheme: const ColorScheme.dark(primary: Colors.black)),
-      home: initialScreen, 
+      home:
+      Homepage()
+      //  initialScreen, 
     );
   }
 }

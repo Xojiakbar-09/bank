@@ -14,7 +14,7 @@ class AuthRepository {
   }) async {
     try {
       final url = Uri.parse(
-        "http://10.133.28.11:1337/api/auth/local/register",
+        "http://192.168.1.224:1337/api/auth/local/register",
       );
 
       final respons = await http.post(
@@ -71,7 +71,7 @@ class AuthRepository {
   }) async {
     try {
       final url = Uri.parse(
-        "http://10.133.28.11:1337/api/auth/local",
+        "http://192.168.1.224:1337/api/auth/local",
       );
 
       final response = await http.post(

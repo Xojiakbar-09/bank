@@ -46,6 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
           context,
           "Xatolik: ${e.toString().replaceAll('HttpException: ', '')}",
         );
+        // ignore: avoid_print
         print("Xatolik: ${e.toString().replaceAll('HttpException: ', '')}");
       }
     } finally {
@@ -86,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: "Email yoki Username",
-                  hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
+                  hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.5)),
                   filled: true,
                   fillColor: const Color(0xFF1E1E24),
                   border: OutlineInputBorder(
@@ -111,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: "Parol",
-                  hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
+                  hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.5)),
                   filled: true,
                   fillColor: const Color(0xFF1E1E24),
                   border: OutlineInputBorder(

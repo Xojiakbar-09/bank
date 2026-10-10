@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 
 class ApiService {
-  static const String baseUrl = "http://10.133.28.11:1337/api";
+  static const String baseUrl = "http://192.168.1.224:1337/api";
 
   // RetryPolicy bo'sh ro'yxat qilindi yoki olib tashlandi, chunki 401 da token refresh mantiqi yo'q
   static final http = InterceptedClient.build(
