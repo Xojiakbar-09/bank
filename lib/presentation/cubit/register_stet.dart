@@ -1,3 +1,4 @@
+
 enum RegisterStatus { initial, loading, failure, authentificate }
 
 class RegisterState {

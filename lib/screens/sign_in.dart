@@ -1,6 +1,7 @@
 import 'package:bank_card/repository/auth_repository.dart';
-import 'package:bank_card/screens/pinkod.dart'; // Kirgandan keyin ochiladigan ekran
-import 'package:bank_card/screens/regiter.dart'; // Ro'yxatdan o'tish ekrani
+import 'package:bank_card/screens/pinkod.dart';
+import 'package:bank_card/screens/regiter.dart';
+import 'package:bank_card/widget/avatar.dart';
 import 'package:bank_card/widget/snekbar.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +17,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _identifierController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _handleLogin() async {
     if (_identifierController.text.isEmpty ||
@@ -33,10 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (mounted) {
-        // Muvaffaqiyatli kirgach, PinCodeScreen yoki Home'ga o'tish
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => PinCodeScreen()),
+          MaterialPageRoute(builder: (context) => const PinCodeScreen()),
           (route) => false,
         );
       }
@@ -46,8 +53,6 @@ class _LoginScreenState extends State<LoginScreen> {
           context,
           "Xatolik: ${e.toString().replaceAll('HttpException: ', '')}",
         );
-        // ignore: avoid_print
-        print("Xatolik: ${e.toString().replaceAll('HttpException: ', '')}");
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -57,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121214), // Uzum uslubidagi to'q fon
+      backgroundColor: const Color(0xFF121214),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -65,14 +70,19 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 40),
-              // Orqaga qaytish yoki logotip o'rniga minimal sarlavha
-              const Text(
-                "Xush kelibsiz! 👋",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Xush kelibsiz! 👋",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  ProfileAvatarUpdateWidget()
+                ],
               ),
               const SizedBox(height: 8),
               const Text(
@@ -80,14 +90,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
               const SizedBox(height: 40),
-
-              // Email yoki Username maydoni
               TextField(
                 controller: _identifierController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: "Email yoki Username",
-                  hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.5)),
+                  hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
                   filled: true,
                   fillColor: const Color(0xFF1E1E24),
                   border: OutlineInputBorder(
@@ -104,15 +112,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Parol maydoni
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: "Parol",
-                  hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.5)),
+                  hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
                   filled: true,
                   fillColor: const Color(0xFF1E1E24),
                   border: OutlineInputBorder(
@@ -140,8 +146,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-
-              // Kirish tugmasi (Binafsha rang - Uzum style)
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -155,10 +159,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   onPressed: _isLoading ? null : _handleLogin,
                   child: _isLoading
-                      ? CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      )
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
                       : const Text(
                           "Kirish",
                           style: TextStyle(
@@ -169,10 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                 ),
               ),
-
               const Spacer(),
-
-              // Ro'yxatdan o'tish sahifasiga o'tish havolasi
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -184,7 +189,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => Register()),
+                        MaterialPageRoute(
+                          builder: (context) => const Register(),
+                        ),
                       );
                     },
                     child: const Text(

@@ -7,101 +7,124 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class AuthRepository {
+  static const String baseUrl = "http://192.168.1.86:1337";
+
   static Future<void> registor({
     required String email,
     required String password,
     required String username,
+    File? imageFile,
   }) async {
+    const secureStorage = FlutterSecureStorage();
+
     try {
-      final url = Uri.parse(
-        "http://192.168.1.224:1337/api/auth/local/register",
-      );
-
-      final respons = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-        }, // <-- Shu qatorni qo'shing
-        body: jsonEncode({
-          // <-- jsonEncode qiling
-          "email": email,
-          "password": password,
-          "username": username,
-        }),
-      );
-
-      final data = jsonDecode(respons.body);
-
-      if (respons.statusCode >= 200 && respons.statusCode < 300) {
-        final token = data["jwt"];
-        print("Saqlanayotgan JWT: $token");
-        print("TEKshiruv - Token qiymati: $token");
-
-        // Tokenni SecureStorage ga yozish
-        const secureStorage = FlutterSecureStorage();
-        await secureStorage.write(key: "jwt", value: token);
-
-        // Agar refresh token mavjud bo'lsagina yozamiz
-        if (data["refreshToken"] != null) {
-          await secureStorage.write(
-            key: "refresh_token",
-            value: data["refreshToken"],
-          );
-        }
-
-        AnsiColor.success('yaxshi');
-      } else {
-        final errorMessage =
-            data["error"]?["message"] ?? data["message"] ?? "Noma'lum xatolik";
-        throw HttpException(errorMessage);
-      }
-    } on SocketException catch (_) {
-      throw SocketException('Internetingizni tekshiring');
-    } on TimeoutException catch (_) {
-      throw TimeoutException('Keyinroq urinib ko\'ring');
-    } catch (error) {
-      print("Xatolik tafsiloti: $error");
-      rethrow;
-    }
-  }
-
-  static Future<void> login({
-    required String identifier, // Email yoki Username
-    required String password,
-  }) async {
-    try {
-      final url = Uri.parse(
-        "http://192.168.1.224:1337/api/auth/local",
-      );
-
+      final regUrl = Uri.parse("$baseUrl/api/auth/local/register");
       final response = await http.post(
-        url,
+        regUrl,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "identifier": identifier,
+          "username": username,
+          "email": email,
           "password": password,
         }),
       );
 
       final data = jsonDecode(response.body);
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        final token = data["jwt"];
-        
-        const secureStorage = FlutterSecureStorage();
-        await secureStorage.write(key: "jwt", value: token);
-        
-        if (data["refreshToken"] != null) {
-          await secureStorage.write(key: "refresh_token", value: data["refreshToken"]);
-        }
-      } else {
+      if (response.statusCode < 200 || response.statusCode >= 300) {
         final errorMessage =
-            data["error"]?["message"] ?? data["message"] ?? "Kirishda xatolik yuz berdi";
+            data["error"]?["message"] ?? "Ro'yxatdan o'tishda xatolik";
+        print(errorMessage);
         throw HttpException(errorMessage);
       }
+
+      final String jwtToken = data["jwt"];
+      final int userId = data["user"]["id"];
+
+      // Tokenlarni saqlaymiz
+      await secureStorage.write(key: "jwt", value: jwtToken);
+      if (data["refreshToken"] != null) {
+        await secureStorage.write(
+          key: "refresh_token",
+          value: data["refreshToken"],
+        );
+      }
+
+      // Rasm mavjud bo'lsa Strapi'ga yuboramiz
+      if (imageFile != null) {
+        final uploadUrl = Uri.parse("$baseUrl/api/upload");
+        var uploadRequest = http.MultipartRequest('POST', uploadUrl);
+
+        uploadRequest.headers['Authorization'] = 'Bearer $jwtToken';
+        uploadRequest.fields['ref'] = 'plugin::users-permissions.user';
+        uploadRequest.fields['refId'] = userId.toString();
+        uploadRequest.fields['field'] = 'avatar';
+
+        var multipartFile = await http.MultipartFile.fromPath(
+          'files',
+          imageFile.path,
+        );
+        uploadRequest.files.add(multipartFile);
+
+        var streamedResponse = await uploadRequest.send();
+        var uploadResponse = await http.Response.fromStream(streamedResponse);
+
+        if (uploadResponse.statusCode < 200 ||
+            uploadResponse.statusCode >= 300) {
+          print("Rasm yuklashda xatolik tafsiloti: ${uploadResponse.body}");
+          throw HttpException("Rasm yuklashda xatolik: ${uploadResponse.body}");
+        }
+      }
+
+      AnsiColor.success('Muvaffaqiyatli ro\'yxatdan o\'tildi');
+    } on SocketException catch (_) {
+      throw const SocketException('Internetingizni tekshiring');
+    } on TimeoutException catch (_) {
+      throw TimeoutException('Kutish vaqti tugadi, keyinroq urinib ko\'ring');
     } catch (error) {
+      print("Ro'yxatdan o'tish xatosi: $error");
       rethrow;
     }
   }
 
+  static Future<void> login({
+    required String identifier,
+    required String password,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrl/api/auth/local");
+
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"identifier": identifier, "password": password}),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final token = data["jwt"];
+
+        const secureStorage = FlutterSecureStorage();
+        await secureStorage.write(key: "jwt", value: token);
+
+        if (data["refreshToken"] != null) {
+          await secureStorage.write(
+            key: "refresh_token",
+            value: data["refreshToken"],
+          );
+        }
+        AnsiColor.success('Muvaffaqiyatli kirildi');
+      } else {
+        final errorMessage =
+            data["error"]?["message"] ??
+            data["message"] ??
+            "Login yoki parol xato";
+        throw HttpException(errorMessage);
+      }
+    } catch (error) {
+      print("Login xatolik tafsiloti: $error");
+      rethrow;
+    }
+  }
 }
