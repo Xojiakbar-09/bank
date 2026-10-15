@@ -13,14 +13,18 @@ class CardModel {
     required this.cardnumber,
   });
 
+  static CardModel fromJson(Map<String, dynamic> json) {
+    // Strapi ba'zan ma'lumotlarni 'attributes' ichida qaytaradi, tekshirib olamiz:
+    final Map<String, dynamic> data = json['attributes'] ?? json;
 
-  static CardModel fromJson(Map<String, dynamic> json) => CardModel(
-        holdername: json['name']?.toString() ?? 'Unknown',
-        cvv: _parseInt(json["cvv"]),
-        expireData: DateTime.tryParse(json["mudatti"]?.toString() ?? '') ?? DateTime.now(),
-        cardnumber: _parseInt(json["number"]),
-        documentId: json["documentId"]?.toString() ?? '', 
-      );
+    return CardModel(
+      documentId: json["documentId"]?.toString() ?? json["id"]?.toString() ?? '',
+      holdername: data['name']?.toString() ?? 'Unknown',
+      cvv: _parseInt(data["cvv"]),
+      expireData: DateTime.tryParse(data["mudatti"]?.toString() ?? '') ?? DateTime.now(),
+      cardnumber: _parseInt(data["number"]),
+    );
+  }
 
   static int _parseInt(dynamic value) {
     if (value is int) return value;

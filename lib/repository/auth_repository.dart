@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class AuthRepository {
-  static const String baseUrl = "http://192.168.1.86:1337";
+  static const String baseUrl = "http://192.168.1.233:1337";
 
   static Future<void> registor({
     required String email,
@@ -43,6 +43,7 @@ class AuthRepository {
 
       // Tokenlarni saqlaymiz
       await secureStorage.write(key: "jwt", value: jwtToken);
+      await secureStorage.write(key: "userId", value: userId.toString());
       if (data["refreshToken"] != null) {
         await secureStorage.write(
           key: "refresh_token",
@@ -86,8 +87,7 @@ class AuthRepository {
       rethrow;
     }
   }
-
-  static Future<void> login({
+static Future<void> login({
     required String identifier,
     required String password,
   }) async {
@@ -104,9 +104,14 @@ class AuthRepository {
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final token = data["jwt"];
+        
+        // --- MANA BU YERGA USER ID NI OLIB SAQLASH KERAK ---
+        final int userId = data["user"]["id"];
 
         const secureStorage = FlutterSecureStorage();
         await secureStorage.write(key: "jwt", value: token);
+        await secureStorage.write(key: "userId", value: userId.toString()); // <-- SHUNI QO'SHING
+        // ----------------------------------------------------
 
         if (data["refreshToken"] != null) {
           await secureStorage.write(

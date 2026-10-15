@@ -1,11 +1,12 @@
 import 'package:bank_card/presentation/homewiev.dart';
 import 'package:bank_card/provider/homeprovider.dart';
-import 'package:bank_card/screens/kartalar.dart';
+import 'package:bank_card/screens/profile.dart';
 import 'package:bank_card/screens/tarix.dart';
 import 'package:bank_card/widget/circlor.dart';
 import 'package:bank_card/widget/listview.dart';
 import 'package:bank_card/widget/logout.dart';
-import 'package:bank_card/widget/showmodelbottemsheet.dart' hide Kartalar;
+// ignore: undefined_hidden_name
+import 'package:bank_card/widget/showmodelbottemsheet.dart' hide KartalRar;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -97,22 +98,22 @@ class _HomepageState extends State<Homepage> {
                     return Listviewcustom(
                       icon: home.icons[index],
                       soz: home.sozs[index],
-                      ontap: () async{
-                        if (index == 0) {
+                      ontap: () async {
+                        if (index == 1) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => Tarix()),
                           );
                         } else if (index == home.icons.length - 1) {
                           showLogoutBottomSheet(context);
-                        } else if (index == 1) {
-                        await   Navigator.push(
+                        } else if (index == 0) {
+                        await  Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Kartalar()),
+                            MaterialPageRoute(
+                              builder: (context) => ProfileView(),
+                            ),
                           );
-                          setState(() {
-                            
-                          });
+                          _homeKey.currentState?.refresh();
                         }
                       },
                     );

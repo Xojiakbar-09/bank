@@ -10,7 +10,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// 1. Asosiy sahifa - Cubit'lar shu yerda ulanadi
 class Register extends StatelessWidget {
   const Register({super.key});
 
@@ -26,7 +25,6 @@ class Register extends StatelessWidget {
   }
 }
 
-// 2. UI va dizayn qismi
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
@@ -76,8 +74,9 @@ class _RegisterViewState extends State<RegisterView> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  SizedBox(height: 30,),
                   const Text(
                     "Ro‘yxatdan o‘tish",
                     style: TextStyle(
@@ -99,7 +98,6 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                   const SizedBox(height: 30),
 
-                  // Avatar yuklash vidjeti
                   const Center(
                     child: ProfileAvatarUpdateWidget(),
                   ),
@@ -140,7 +138,6 @@ class _RegisterViewState extends State<RegisterView> {
                               pressedOpacity: 0.4,
                               onPressed: isButtonEnabled
                                   ? () {
-                                      // UploadCubit ichidagi rasmni olib signUp'ga yuboramiz
                                       final imageFile = context.read<UploadCubit>().state.image;
 
                                       context.read<RegisterCubit>().signUp(

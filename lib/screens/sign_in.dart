@@ -1,7 +1,6 @@
 import 'package:bank_card/repository/auth_repository.dart';
 import 'package:bank_card/screens/pinkod.dart';
 import 'package:bank_card/screens/regiter.dart';
-import 'package:bank_card/widget/avatar.dart';
 import 'package:bank_card/widget/snekbar.dart';
 import 'package:flutter/material.dart';
 
@@ -81,7 +80,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  ProfileAvatarUpdateWidget()
                 ],
               ),
               const SizedBox(height: 8),
