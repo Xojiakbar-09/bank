@@ -242,17 +242,7 @@ class _ProfileViewState extends State<ProfileView> {
                                         setState(() => _isDragging = false),
                                     onDraggableCanceled: (_, __) =>
                                         setState(() => _isDragging = false),
-                                    childWhenDragging: const SizedBox(
-                                      height: 200,
-                                      child: Center(
-                                        child: Text(
-                                          "Karta ko'chirildi",
-                                          style: TextStyle(
-                                            color: Colors.white24,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    childWhenDragging: SizedBox(),
                                     feedback: Material(
                                       color: Colors.transparent,
                                       child: CreditCardUi(
@@ -304,7 +294,7 @@ class _ProfileViewState extends State<ProfileView> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                               side: BorderSide(
-                                color: Colors.white.withOpacity(0.15),
+                                color: Colors.white.withValues(alpha: 0.15),
                               ),
                             ),
                             elevation: 0,

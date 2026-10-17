@@ -47,7 +47,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: const ColorScheme.dark(primary: Colors.black),
       ),
-      home: initialScreen,
+      home: 
+      initialScreen,
     );
   }
 }

@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class AuthRepository {
-  static const String baseUrl = "http://192.168.1.233:1337";
+  static const String baseUrl = "http://192.168.1.55:1337";
 
   static Future<void> registor({
     required String email,

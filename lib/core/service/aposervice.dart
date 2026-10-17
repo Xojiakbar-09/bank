@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_interceptor/http_interceptor.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.1.233:1337/api";
+  static const String baseUrl = "http://192.168.1.55:1337/api";
 
   static final http = InterceptedClient.build(
     interceptors: [const TokenInterceptor()],
@@ -28,22 +29,33 @@ class TokenInterceptor implements HttpInterceptor {
     if (jwt != null) {
       request.headers['Authorization'] = 'Bearer $jwt';
     }
-    request.headers['Content-Type'] = 'application/json';
+
+    // Multipart so'rovlarning o'z Content-Type'i (boundary) buzilib ketmasligi uchun
+    // faqat multipart bo'lmagan so'rovlarga application/json o'rnatamiz.
+    final contentType = request.headers['Content-Type'] ?? '';
+    if (!contentType.toLowerCase().startsWith('multipart/')) {
+      request.headers['Content-Type'] = 'application/json';
+    }
 
     return request;
   }
 
   @override
-  FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) async {
+  FutureOr<bool> shouldInterceptResponse({
+    required BaseResponse response,
+  }) async {
     return true;
   }
 
   @override
-  FutureOr<BaseResponse> interceptResponse({required BaseResponse response}) async {
-    // Agar token eskirgan bo'lsa (401 Unauthorized)
-    if (response.statusCode == 401) {
+  FutureOr<BaseResponse> interceptResponse({
+    required BaseResponse response,
+  }) async {
+    // 1. Agar 401 xatosi kelsa va bu so'rov allaqachon qayta urinilmagan bo'lsa
+    if (response.statusCode == 401 &&
+        response.request?.headers['X-Retry'] != 'true') {
       bool refreshed = await _refreshToken();
-      
+
       if (refreshed) {
         try {
           const secureStorage = FlutterSecureStorage();
@@ -51,12 +63,30 @@ class TokenInterceptor implements HttpInterceptor {
 
           var request = response.request;
           if (request != null) {
-            request.headers['Authorization'] = 'Bearer $newJwt';
-            final streamedResponse = await request.send();
-            return await Response.fromStream(streamedResponse);
+            // 2. So'rov tanasi (body) yo'qolib qolmasligi uchun uni klon qilamiz (nusxalaymiz)
+            http.BaseRequest clonedRequest;
+            if (request is http.Request) {
+              clonedRequest = http.Request(request.method, request.url)
+                ..headers.addAll(request.headers)
+                ..followRedirects = request.followRedirects
+                ..maxRedirects = request.maxRedirects
+                ..persistentConnection = request.persistentConnection
+                ..bodyBytes = request.bodyBytes;
+            } else {
+              clonedRequest = request;
+            }
+
+            // 3. Yangi JWT tokenni qo'shamiz va qayta urinish bayrog'ini o'rnatamiz
+            clonedRequest.headers['Authorization'] = 'Bearer $newJwt';
+            clonedRequest.headers['X-Retry'] = 'true';
+
+            // 4. Klondagi so'rovni qayta yuboramiz.
+            // MUHIM: http_interceptor natijani `as StreamedResponse` bilan cast qiladi,
+            // shuning uchun bu yerda buffered `Response` emas, `StreamedResponse` qaytaramiz.
+            return await clonedRequest.send();
           }
         } catch (e) {
-          print("So'rovni qayta yuborishda xatolik: $e");
+          debugPrint("So'rovni qayta yuborishda xatolik: $e");
         }
       }
     }
@@ -74,7 +104,7 @@ class TokenInterceptor implements HttpInterceptor {
 
     try {
       final res = await http.post(
-        Uri.parse("http://192.168.100.8:1337/api/token/refresh"),
+        Uri.parse("${ApiService.baseUrl}/token/refresh"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"refreshToken": refreshToken}),
       );
@@ -83,14 +113,21 @@ class TokenInterceptor implements HttpInterceptor {
         final data = jsonDecode(res.body);
         final newJwt = data["jwt"];
 
-        await secureStorage.write(key: "jwt", value: newJwt);
-        if (data["refreshToken"] != null) {
-          await secureStorage.write(key: "refresh_token", value: data["refreshToken"]);
+        // Javobda jwt bo'lmasa, mavjud tokenni o'chirib yubormaymiz
+        if (newJwt is String && newJwt.isNotEmpty) {
+          await secureStorage.write(key: "jwt", value: newJwt);
+          if (data["refreshToken"] is String) {
+            await secureStorage.write(
+              key: "refresh_token",
+              value: data["refreshToken"],
+            );
+          }
+          return true;
         }
-        return true;
+        debugPrint("Tokenni yangilashda javobda jwt topilmadi");
       }
     } catch (e) {
-      print("Tokenni yangilashda xato: $e");
+      debugPrint("Tokenni yangilashda xato: $e");
     }
 
     await secureStorage.deleteAll();

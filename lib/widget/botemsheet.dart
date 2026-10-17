@@ -96,6 +96,7 @@ Future<bool?> showDeleteCardBottomSheet(BuildContext context, CardModel card) {
                       const storage = FlutterSecureStorage();
                       final jwtToken = await storage.read(key: 'jwt');
 
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(bottomSheetContext, true);
 
                       try {

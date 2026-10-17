@@ -67,7 +67,7 @@ void showTopSnackBar(BuildContext context, String message, {bool isError = true}
 
   overlay.insert(overlayEntry);
 
-  Future.delayed(const Duration(seconds: 3), () {
+  Future.delayed(const Duration(seconds: 1), () {
     if (overlayEntry.mounted) {
       overlayEntry.remove();
     }
